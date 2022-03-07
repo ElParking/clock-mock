@@ -19,6 +19,10 @@ class DateTimeMock extends \DateTime
 
         parent::__construct($datetime, $timezone);
 
+        if (\DateTime::createFromFormat('Y-m-d H:i:s', $datetime) || \DateTime::createFromFormat('Y/m/d H:i:s', $datetime)) {
+            return;
+        }
+
         $this->setTimestamp(strtotime($datetime, ClockMock::getFrozenDateTime()->getTimestamp()));
 
         if ($this->shouldUseMicrosecondsOfFrozenDate($datetime)) {
