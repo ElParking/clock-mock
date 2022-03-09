@@ -45,6 +45,14 @@ class ClockMockTest extends TestCase
         $this->assertEquals($fakeNow, new \DateTime('now'));
     }
 
+    public function test_DateTime_constructor_with_absolute_mocked_date_timezone()
+    {
+        ClockMock::freeze(new \DateTime('2022-03-08 12:00:00'));
+        $date = new \DateTime('2022-03-08 15:00:00', new \DateTimeZone('Europe/Madrid'));
+
+        $this->assertEquals('2022-03-08 15:00:00', $date->format('Y-m-d H:i:s'));
+    }
+
     public function test_DateTime_constructor_with_relative_mocked_date_with_microseconds()
     {
         $juneFifth1986 = new \DateTime('1986-06-05');
@@ -165,6 +173,22 @@ class ClockMockTest extends TestCase
         ClockMock::freeze($fakeNow = new \DateTime('yesterday'));
 
         $this->assertEquals($fakeNow->getTimestamp(), time());
+    }
+
+    public function test_DateTime_constructor_with_relative_mocked_date_timezone()
+    {
+        ClockMock::freeze(new \DateTime('2022-03-08 12:00:00'));
+        $date = new \DateTime('+1 day', new \DateTimeZone('Europe/Madrid'));
+
+        $this->assertEquals('2022-03-09 13:00:00', $date->format('Y-m-d H:i:s'));
+    }
+
+    public function test_DateTime_constructor_with_year_month()
+    {
+        ClockMock::freeze(new \DateTime('2022-03-08 12:00:00'));
+        $date = new \DateTime('2022-04', new \DateTimeZone('Europe/Madrid'));
+
+        $this->assertEquals('2022-04', $date->format('Y-m'));
     }
 
     protected function tearDown(): void

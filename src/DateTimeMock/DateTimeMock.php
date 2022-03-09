@@ -19,35 +19,38 @@ class DateTimeMock extends \DateTime
 
         parent::__construct($datetime, $timezone);
 
-        if (\DateTime::createFromFormat('Y-m-d H:i:s', $datetime)
-            || \DateTime::createFromFormat('Y/m/d H:i:s', $datetime)
-            || \DateTime::createFromFormat('Y-m-d H:i', $datetime)
-        ) {
+        if ($this->isAbsoluteDate($datetime)) {
+            $this->setMicrosecondsIfNeeded($datetime);
             return;
         }
 
         $this->setTimestamp(strtotime($datetime, ClockMock::getFrozenDateTime()->getTimestamp()));
 
-        if ($this->shouldUseMicrosecondsOfFrozenDate($datetime)) {
+        $this->setMicrosecondsIfNeeded($datetime);
+    }
+
+    private function setMicrosecondsIfNeeded(string $datetime)
+    {
+        if (!$this->isAbsoluteDate($datetime)) {
             $this->setTime(
-                idate('H', $this->getTimestamp()),
-                idate('i', $this->getTimestamp()),
-                idate('s', $this->getTimestamp()),
+                (int) $this->format('H'),
+                (int) $this->format('i'),
+                (int) $this->format('s'),
                 (int) ClockMock::getFrozenDateTime()->format('u')
             );
         }
     }
 
-    private function shouldUseMicrosecondsOfFrozenDate(string $datetime): bool
+    private function isAbsoluteDate(string $datetime): bool
     {
         // After some empirical tests, we've seen that microseconds are set to the current actual ones only when all of
         // these variables are false (i.e. when an absolute date or time is not provided).
         $parsedDate = date_parse($datetime);
-        return $parsedDate['year'] === false
+        return !($parsedDate['year'] === false
             && $parsedDate['month'] === false
             && $parsedDate['day'] === false
             && $parsedDate['hour'] === false
             && $parsedDate['minute'] === false
-            && $parsedDate['second'] === false;
+            && $parsedDate['second'] === false);
     }
 }
