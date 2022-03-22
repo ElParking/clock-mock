@@ -24,8 +24,8 @@ class ClockMockTest extends TestCase
 
         ClockMock::freeze($fakeNow = new \DateTime('now')); // This uses current time including microseconds
 
-        $this->assertEquals($fakeNow, new \DateTimeImmutable('now'));
-        $this->assertEquals($juneFifth1986, new \DateTimeImmutable('1986-06-05'));
+        $this->assertEquals($fakeNow->format('Y-m-d H:i:s'), (new \DateTimeImmutable('now'))->format('Y-m-d H:i:s'));
+        $this->assertEquals($juneFifth1986->format('Y-m-d H:i:s'), (new \DateTimeImmutable('1986-06-05'))->format('Y-m-d H:i:s'));
     }
 
     public function test_DateTimeImmutable_constructor_with_relative_mocked_date_without_microseconds()
@@ -59,8 +59,8 @@ class ClockMockTest extends TestCase
 
         ClockMock::freeze($fakeNow = new \DateTime('now')); // This uses current time including microseconds
 
-        $this->assertEquals($fakeNow, new \DateTime('now'));
-        $this->assertEquals($juneFifth1986, new \DateTime('1986-06-05'));
+        $this->assertEquals($fakeNow->format('Y-m-d H:i:s'), (new \DateTime('now'))->format('Y-m-d H:i:s'));
+        $this->assertEquals($juneFifth1986->format('Y-m-d H:i:s'), (new \DateTime('1986-06-05'))->format('Y-m-d H:i:s'));
     }
 
     public function test_DateTime_constructor_with_relative_mocked_date_without_microseconds()
@@ -189,6 +189,22 @@ class ClockMockTest extends TestCase
         $date = new \DateTime('2022-04', new \DateTimeZone('Europe/Madrid'));
 
         $this->assertEquals('2022-04', $date->format('Y-m'));
+    }
+
+    public function test_DateTime_constructor_with_relative_date_string_with_hour()
+    {
+        ClockMock::freeze(new \DateTime('2016-03-08 12:00:00'));
+        $date = new \DateTime('last day of this month 23:59:59');
+
+        $this->assertEquals('2016-03-31 23:59:59', $date->format('Y-m-d H:i:s'));
+    }
+
+    public function test_DateTime_constructor_with_relative_date_string_with_hour_and_timezone()
+    {
+        ClockMock::freeze(new \DateTime('2016-01-08 12:00:00'));
+        $date = new \DateTime('last day of this month 23:59:59', new \DateTimeZone('Europe/Madrid'));
+
+        $this->assertEquals('2016-01-31 23:59:59', $date->format('Y-m-d H:i:s'));
     }
 
     protected function tearDown(): void

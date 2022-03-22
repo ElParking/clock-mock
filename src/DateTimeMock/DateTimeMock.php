@@ -20,25 +20,30 @@ class DateTimeMock extends \DateTime
         parent::__construct($datetime, $timezone);
 
         if ($this->isAbsoluteDate($datetime)) {
-            $this->setMicrosecondsIfNeeded($datetime);
+            $this->setMicroseconds();
             return;
         }
 
-        $this->setTimestamp(strtotime($datetime, ClockMock::getFrozenDateTime()->getTimestamp()));
+        if ($this->getTimezone()->getName() !== 'UTC') {
+            $mockedDate = ClockMock::getFrozenDateTime();
+            $mockedDate->setTimeZone($timezone);
+            $mockedDate->modify($datetime);
+            parent::__construct($mockedDate->format('Y-m-d H:i:s'), $timezone);
+        } else {
+            $this->setTimestamp(strtotime($datetime, ClockMock::getFrozenDateTime()->getTimestamp()));
+        }
 
-        $this->setMicrosecondsIfNeeded($datetime);
+        $this->setMicroseconds();
     }
 
-    private function setMicrosecondsIfNeeded(string $datetime)
+    private function setMicroseconds()
     {
-        if (!$this->isAbsoluteDate($datetime)) {
-            $this->setTime(
-                (int) $this->format('H'),
-                (int) $this->format('i'),
-                (int) $this->format('s'),
-                (int) ClockMock::getFrozenDateTime()->format('u')
-            );
-        }
+        $this->setTime(
+            (int) $this->format('H'),
+            (int) $this->format('i'),
+            (int) $this->format('s'),
+            (int) ClockMock::getFrozenDateTime()->format('u')
+        );
     }
 
     private function isAbsoluteDate(string $datetime): bool
@@ -48,9 +53,6 @@ class DateTimeMock extends \DateTime
         $parsedDate = date_parse($datetime);
         return !($parsedDate['year'] === false
             && $parsedDate['month'] === false
-            && $parsedDate['day'] === false
-            && $parsedDate['hour'] === false
-            && $parsedDate['minute'] === false
-            && $parsedDate['second'] === false);
+            && $parsedDate['day'] === false);
     }
 }
