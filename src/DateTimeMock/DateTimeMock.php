@@ -25,7 +25,7 @@ class DateTimeMock extends \DateTime
         }
 
         if ($this->getTimezone()->getName() !== 'UTC') {
-            $mockedDate = ClockMock::getFrozenDateTime();
+            $mockedDate = clone ClockMock::getFrozenDateTime();
             $mockedDate->setTimeZone($timezone);
             $mockedDate->modify($datetime);
             parent::__construct($mockedDate->format('Y-m-d H:i:s'), $timezone);
