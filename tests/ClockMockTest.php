@@ -73,6 +73,15 @@ class ClockMockTest extends TestCase
         $this->assertEquals($juneFifth1986, new \DateTime('1986-06-05'));
     }
 
+    public function test_DateTime_constructor_with_relative_mocked_date_passing_microseconds()
+    {
+        ClockMock::freeze($fakeNow = new \DateTime('now')); // This uses current time including microseconds
+        $this->assertEquals($fakeNow->format('Y-m-d H:i:s.u'), (new \DateTime('now'))->format('Y-m-d H:i:s.u'));
+
+        $juneFifth1986 = new \DateTime('1986-06-05 12:00:01.123456');
+        $this->assertEquals('1986-06-05 12:00:01.123456', $juneFifth1986->format('Y-m-d H:i:s.u'));
+    }
+
     public function test_date()
     {
         ClockMock::freeze(new \DateTime('1986-06-05'));

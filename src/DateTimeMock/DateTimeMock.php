@@ -20,7 +20,10 @@ class DateTimeMock extends \DateTime
         parent::__construct($datetime, $timezone);
 
         if ($this->isAbsoluteDate($datetime)) {
-            $this->setMicroseconds();
+            if (!$this->hasMicroseconds($datetime)) {
+                $this->setMicroseconds();
+            }
+
             return;
         }
 
@@ -54,5 +57,10 @@ class DateTimeMock extends \DateTime
         return !($parsedDate['year'] === false
             && $parsedDate['month'] === false
             && $parsedDate['day'] === false);
+    }
+
+    private function hasMicroseconds($datetime): bool
+    {
+        return strpos($datetime, '.') !== false;
     }
 }
